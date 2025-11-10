@@ -1,0 +1,46 @@
+# Instalar a biblioteca necessária:
+
+import pandas as pd
+from mlxtend.frequent_patterns import apriori, association_rules
+
+# ===============================
+# 1. Criar base de transações
+# ===============================
+
+# Exemplo de dados: cada linha é uma transação
+basket = [
+    ['leite', 'pão', 'manteiga'],
+    ['pão', 'manteiga'],
+    ['leite', 'café'],
+    ['leite', 'pão', 'manteiga', 'café'],
+    ['pão', 'café']
+]
+
+# Transformar em um DataFrame "one-hot encoded"
+from mlxtend.preprocessing import TransactionEncoder
+te = TransactionEncoder()
+te_ary = te.fit(basket).transform(basket)
+df = pd.DataFrame(te_ary, columns=te.columns_)
+
+print("📦 Base de dados:")
+print(df)
+
+# ===============================
+# 2. Aplicar o algoritmo Apriori
+# ===============================
+
+# min_support = frequência mínima (ex: 0.4 → aparece em 40% das transações)
+frequent_itemsets = apriori(df, min_support=0.4, use_colnames=True)
+
+print("\n✅ Itens frequentes:")
+print(frequent_itemsets)
+
+# ===============================
+# 3. Gerar regras de associação
+# ===============================
+
+# min_threshold = confiança mínima da regra
+rules = association_rules(frequent_itemsets, metric="confidence", min_threshold=0.6)
+
+print("\n📈 Regras de associação encontradas:")
+print(rules[['antecedents', 'consequents', 'support', 'confidence', 'lift']])
